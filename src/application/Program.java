@@ -26,11 +26,16 @@ void main() {
 
     System.out.println("---- TEST 4: seller insert ------");
     Seller newSeller = new Seller(null, "Bob", "bob@gmail.com", new Date(), 4000.0, department);
-    sellerDao.insert((newSeller));
+    sellerDao.insert(newSeller);
     System.out.println("Inserted new ID:" + newSeller.getId() );
 
     System.out.println("---- TEST 5: seller update ------");
     Seller updatedSeller = new Seller( newSeller.getId(), "Raphael", "rapha@gmail.com", new Date(), 4000.0, department);
-    sellerDao.update((updatedSeller));
+    sellerDao.update(updatedSeller);
     System.out.println("Updated seller ID:" + updatedSeller.getId() + " - Nome: " +updatedSeller.getName() );
+
+    System.out.println("---- TEST 6: seller delete ------");
+//    sellerDao.deleteById(9999); // via gerar throw new SQLException "Usuário inexistente"
+    sellerDao.deleteById(updatedSeller.getId());
+    System.out.println("DELETED seller ID:" + updatedSeller.getId() + " - Nome: " +updatedSeller.getName() );
 }
