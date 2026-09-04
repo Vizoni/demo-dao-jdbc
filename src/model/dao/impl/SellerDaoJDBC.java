@@ -102,6 +102,42 @@ public class SellerDaoJDBC implements SellerDao {
         }
     }
 
+    @Override
+    public List<Seller> findAll() {
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+            st = conn.prepareStatement("SELECT seller.*,department.Name as DepName " +
+                    "FROM seller INNER JOIN department " +
+                    "ON seller.DepartmentId = department.Id " +
+                    "ORDER BY Name");
+            rs = st.executeQuery();
+
+            List<Seller> sellerList = new ArrayList<>();
+
+            Map<Integer, Department> departmentMap = new HashMap<>();
+            while (rs.next()) {
+                // verifica se o departamento ja foi instanciado no map
+                Department myDep = departmentMap.get(rs.getInt("DepartmentId"));
+                if (myDep == null) {
+                    myDep = instantiateDepartment(rs);
+                    // adiciona o departmaento no map pra nao criar mais de uma vez
+                    departmentMap.put(rs.getInt("DepartmentId"), myDep);
+                }
+                Seller sel = instantiateSeller(rs, myDep);
+                sellerList.add(sel);
+            }
+            return sellerList;
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+        finally {
+            DB.closeStatement(st);
+            DB.closeResultSet(rs);
+        }
+    }
+
     private Seller instantiateSeller(ResultSet rs, Department dep) throws SQLException {
         Seller sel = new Seller();
         sel.setId(rs.getInt("Id"));
@@ -120,10 +156,5 @@ public class SellerDaoJDBC implements SellerDao {
         dep.setId(rs.getInt("DepartmentId"));
         dep.setName(rs.getString("DepName"));
         return dep;
-    }
-
-    @Override
-    public List<Seller> findAll() {
-        return List.of();
     }
 }
